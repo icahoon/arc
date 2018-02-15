@@ -50,6 +50,8 @@ func RegisterContainerService(vendor string, ctor ContainerServiceCtor) {
 // concrete implementations of these methods.
 type ContainerService interface {
 	NewContainerService(*config.ContainerService) (resource.ProviderContainerService, error)
+	NewContainerRepository(*config.ContainerRepository) (resource.ProviderContainerRepository, error)
+	NewContainer(*config.Container) (resource.ProviderContainer, error)
 }
 
 // NewContainerService is the provider agnostic constructor used by pkg/arc.

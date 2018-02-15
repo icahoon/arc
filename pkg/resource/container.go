@@ -17,44 +17,56 @@
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 // ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERIVCES;
 // LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-package config
+package resource
 
-import "github.com/cisco/arc/pkg/msg"
+import (
+	"github.com/cisco/arc/pkg/config"
+	"github.com/cisco/arc/pkg/route"
+)
 
-// The configuration of the container_service object.
-type ContainerService struct {
-	Provider     *Provider              `json:"provider"`
-	Name_        string                 `json:"name"`
-	Repositories []*ContainerRepository `json:"repositories"`
-	Containers   []*Container           `json:containers"`
+// StaticContainer provides the interface to the static portion of a
+// container. This information is provided via config file and is implemented
+// by config.Container.
+type StaticContainer interface {
+	config.Printer
+
+	// Name of the container.
+	Name() string
 }
 
-// Name of the container service.
-func (c *ContainerService) Name() string {
-	return c.Name_
+// DynamicContainer provides access to the dynamic portion of the container.
+type DynamicContainer interface {
+	Loader
+	Creator
+	Destroyer
+	Provisioner
+	Auditor
+	Informer
 }
 
-// Print provides a user friendly way to view the configuration of the container service.
-func (cs *ContainerService) Print() {
-	msg.Info("Container Service Config")
-	msg.Detail("%-20s\t%s", "name", cs.Name())
-	msg.IndentInc()
-	if cs.Provider != nil {
-		cs.Provider.Print()
-	}
-	for _, r := range cs.Repositories {
-		r.Print()
-	}
-	msg.Info("Containers")
-	for _, c := range cs.Containers {
-		c.Print()
-	}
-	msg.IndentDec()
+// ProviderContainer provides a resource interface for the provider supplied container.
+type ProviderContainer interface {
+	DynamicContainer
+}
+
+// Container provides the resource interface used for the container
+// object implemented in the arc package.
+type Container interface {
+	route.Router
+	StaticContainer
+	DynamicContainer
+	Helper
+
+	// ContainerService provides access to container's parent.
+	ContainerService() ContainerService
+
+	// ProviderContainer allows access to the provider's container object.
+	ProviderContainer() ProviderContainer
 }

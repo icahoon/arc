@@ -17,7 +17,7 @@
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 // DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 // ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERIVCES;
 // LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
@@ -31,51 +31,42 @@ import (
 	"github.com/cisco/arc/pkg/route"
 )
 
-// StaticContainerService provides the interface to the static portion of the
-// container service. This information is provided via config file and is implemented
-// by config.ContainerService.
-type StaticContainerService interface {
+// StaticContainerRepository provides the interface to the static portion of the
+// container repository. This information is provided via config file and is implemented
+// by config.ContainerRepository.
+type StaticContainerRepository interface {
 	config.Printer
 
-	// Name of the container service.
+	// Name of the container repository.
 	Name() string
 }
 
-// DynamicContainerService provides access to the dynamic portion of the container service.
-type DynamicContainerService interface {
+// DynamicContainerRepository provides access to the dynamic portion of the container repository.
+type DynamicContainerRepository interface {
 	Loader
 	Creator
 	Destroyer
 	Provisioner
 	Auditor
 	Informer
-
-	// State returns the status of the container service.
-	State() string
 }
 
-// ProviderContainerService provides a resource interface for the provider supplied container service.
-type ProviderContainerService interface {
-	DynamicContainerService
+// ProviderContainerRepository provides a resource interface for the provider supplied container repository.
+type ProviderContainerRepository interface {
+	DynamicContainerRepository
 }
 
-// ContainerService provides the resource interface used for the container service
+// ContainerRepository provides the resource interface used for the container repository
 // object implemented in the arc package.
-type ContainerService interface {
+type ContainerRepository interface {
 	route.Router
-	StaticContainerService
-	DynamicContainerService
+	StaticContainerRepository
+	DynamicContainerRepository
 	Helper
 
-	// Arc provides access to container service's parent.
-	Arc() Arc
+	// ContainerService provides access to container repository's parent.
+	ContainerService() ContainerService
 
-	// ProviderContainerSerivces allows access to the provider's container service object.
-	ProviderContainerService() ProviderContainerService
-
-	// FindRepository returns the container repository with the given name, or nil otherwise.
-	FindRepository(name string) ContainerRepository
-
-	// FindContainer returns the container with the given name, or nil otherwise.
-	FindContainer(name string) Container
+	// ProviderContainerRepository allows access to the provider's container repository object.
+	ProviderContainerRepository() ProviderContainerRepository
 }

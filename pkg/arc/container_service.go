@@ -40,7 +40,9 @@ import (
 type containerService struct {
 	*config.ContainerService
 	arc                      resource.Arc
-	providerContainerService resource.ProviderContainerService
+	providerContainerService ressource.ProviderContainerService
+	repositories             []*containerRepository
+	containers               []*container
 }
 
 // newContainerService is the constructor for a container service object. It returns a non-nil error upon failure.
@@ -70,14 +72,70 @@ func newContainerService(cfg *config.ContainerService, arc *arc) (*containerServ
 		return nil, err
 	}
 
+	for _, conf := range cfg.Repositories {
+		r, err := p.NewContainerRepositories(conf)
+		if err != nil {
+			return err
+		}
+		cs.repositories = append(cs.repositories, r)
+	}
+
+	for _, cconf := range cfg.Containers {
+		c, err := p.NewContainer(cconf)
+		if err != nil {
+			return err
+		}
+		cs.containers = append(cs.containers, c)
+	}
+
 	return cs, nil
+}
+
+func (cs *containerService) FindRepository(name string) resource.ContainerRepository {
+	for _, r := range cs.repositories {
+		if r.Name() == name {
+			return r
+		}
+	}
+	return nil
+}
+
+func (cs *containerService) FindContainer(name string) resource.Container {
+	for _, c := range cs.containers {
+		if c.Name() == name {
+			return c
+		}
+	}
+	return nil
 }
 
 // Route satisfies the resource.ContainerService interface.
 func (cs *containerService) Route(req *route.Request) route.Response {
 	log.Route(req, "ContainerService")
 
-	if req.Top() != "" {
+	// Route to the appropriate resource
+	switch req.Top() {
+	case "container":
+		req.Pop()
+		if req.Top() == "" {
+			break
+		}
+		name := req.Top()
+		c := cs.FindContainer(name)
+		if c != nil {
+			msg.Errorf("Unknown container %q", name)
+			return route.FAIL
+		}
+		return c.Route(req.Pop)
+	case "repository", "repo":
+		name := req.Top()
+		r := cs.FindRepository(name)
+		if r != nil {
+			msg.Errorf("Unknown repository %q", name)
+			return route.FAIL
+		}
+		return r.Route(req.Pop())
+	default:
 		cs.Help()
 		return route.FAIL
 	}

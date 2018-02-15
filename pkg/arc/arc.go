@@ -207,12 +207,12 @@ func (a *arc) Route(req *route.Request) route.Response {
 			return route.FAIL
 		}
 		return a.databaseService.Route(req.Pop())
-	case "container":
+	case "container", "repository", "repo":
 		if a.containerService == nil {
 			msg.Error("ContainerService not defined in the config file")
 			return route.FAIL
 		}
-		return a.containerService.Route(req.Pop())
+		return a.containerService.Route(req)
 	case "dns":
 		if a.dns == nil {
 			msg.Error("Dns not defined in the config file")

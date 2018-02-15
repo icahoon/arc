@@ -28,33 +28,18 @@ package config
 
 import "github.com/cisco/arc/pkg/msg"
 
-// The configuration of the container_service object.
-type ContainerService struct {
-	Provider     *Provider              `json:"provider"`
-	Name_        string                 `json:"name"`
-	Repositories []*ContainerRepository `json:"repositories"`
-	Containers   []*Container           `json:containers"`
+// The configuration of the container_service repository object.
+type ContainerRepository struct {
+	Name_ string `json:"repository"`
 }
 
-// Name of the container service.
-func (c *ContainerService) Name() string {
+// Name of the container repository.
+func (c *ContainerRepository) Name() string {
 	return c.Name_
 }
 
-// Print provides a user friendly way to view the configuration of the container service.
-func (cs *ContainerService) Print() {
-	msg.Info("Container Service Config")
+// Print provides a user friendly way to view the configuration of the container repository.
+func (cs *ContainerRepository) Print() {
+	msg.Info("Container Repository Config")
 	msg.Detail("%-20s\t%s", "name", cs.Name())
-	msg.IndentInc()
-	if cs.Provider != nil {
-		cs.Provider.Print()
-	}
-	for _, r := range cs.Repositories {
-		r.Print()
-	}
-	msg.Info("Containers")
-	for _, c := range cs.Containers {
-		c.Print()
-	}
-	msg.IndentDec()
 }

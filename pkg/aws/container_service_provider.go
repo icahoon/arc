@@ -31,6 +31,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 
 	"github.com/cisco/arc/pkg/config"
@@ -45,6 +46,7 @@ func init() {
 
 type containerServiceProvider struct {
 	ecs     *ecs.ECS
+	ecr     *ecr.ECR
 	account string
 	region  string
 }
@@ -70,13 +72,14 @@ func newContainerServiceProvider(cfg *config.ContainerService) (provider.Contain
 		SharedConfigState: session.SharedConfigEnable,
 	}
 
-	sess, err := session.NewSessionWithOptions(opts)
+	s, err := session.NewSessionWithOptions(opts)
 	if err != nil {
 		return nil, err
 	}
 
 	return &containerServiceProvider{
-		ecs:     ecs.New(sess),
+		ecs:     ecs.New(s),
+		ecr:     ecr.New(s),
 		account: account,
 		region:  region,
 	}, nil
@@ -84,4 +87,12 @@ func newContainerServiceProvider(cfg *config.ContainerService) (provider.Contain
 
 func (p *containerServiceProvider) NewContainerService(cfg *config.ContainerService) (resource.ProviderContainerService, error) {
 	return newContainerService(cfg, p)
+}
+
+func (p *containerServiceProvider) NewContainerRepository(cfg *config.ContainerRepository) (resource.ProviderContainerRepository, error) {
+	return newContainerRepository(cfg, p)
+}
+
+func (p *containerService) NewContainer(cfg *config.Container) (resource.ProviderContainer, error) {
+	return newContainer(cfg, p)
 }

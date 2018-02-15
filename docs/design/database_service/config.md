@@ -7,52 +7,18 @@ objects.
 
 ## database_service
 
-The "database_service" section is a json object that contains two elements, the "provider" element and the "databases" element.
-The "provider" element is a json object that defines the cloud provider data. The "databases" element is a json array of database instances.
+The "database_service" section is a json object that contains up to two members, the "databases" member and the optional "provider" member.
+The "databases" member is a json array of database instances. The "provider" member is a json object that defines the cloud provider data.
 
 ```
   "database_service": {
-    "provider": {
-      ...
-    },
-
     "databases": [
       ...
-    ]
-  }
-```
+    ],
 
-## provider
-
-The provider element contains two elements, "vendor" and "data". The "vendor" element is a string indicating the cloud vendor to use.
-Currently only the "aws" and "mock" vendors are supported. The "data" element is a json object comprised of key value pairs.
-These pairs differ depending on the vendor.
-
-
-### aws vendor
-
-For an aws vendor, the following values are required:
-
-- **account** (string) _required_: The aws account name
-- **region**  (string) _required_: The aws region that this database service where this database service will reside
-
-```json
     "provider": {
-      "vendor": "aws",
-      "data": {
-        "account": "example-integration",
-        "region":  "us-east-1"
-      }
+      ...
     }
-```
-
-### mock vendor
-
-For a mock vendor, the data section is not required.
-
-```json
-  "database": {
-    "provider": { "vendor": "mock" }
   }
 ```
 
@@ -62,7 +28,7 @@ Since a datacenter can host multiple database instances, the database element is
 
 ### database
 
-The database element represent a single database instance in the datacenter. It has the following elements
+The database member represent a single database instance in the datacenter. It has the following elements
 
 - **database**        (string)  _required_: This is the name of the database instance. This name can be used on the cli to address this database instance.
 - **engine**          (string)  _required_: The name of the database engine to use for this instance.
@@ -96,17 +62,18 @@ The database element represent a single database instance in the datacenter. It 
 
 ## Example database_service configuration
 
-Here is an example of a simple postgres database using the AWS RDS service. There is a single database instance called "contacts".
+Here is an example of a simple postgres database using the AWS RDS service where the provider is defined outside of the database_service definition. There is a single database instance called "contacts".
 
 ```json
+  "provider": {
+    "vendor": "aws",
+    "data": {
+      "account": "example-integration",
+      "region":  "us-east-1"
+    }
+  }
+
   "database_service": {
-    "provider": {
-      "vendor": "aws",
-      "data": {
-        "account": "example-integration",
-        "region":  "us-east-1"
-      }
-    },
     "databases": [
       {
         "database":        "contacts",
@@ -122,3 +89,10 @@ Here is an example of a simple postgres database using the AWS RDS service. Ther
     ]
   },
 ```
+
+## provider
+
+See the [provider configuration](../provider/config.md) for more details. The "data" fields required for the database_service
+hosted in AWS are "account" and "region".
+
+

@@ -52,3 +52,11 @@ func newContainerServiceProvider(cfg *config.ContainerService) (provider.Contain
 func (p *containerServiceProvider) NewContainerService(cfg *config.ContainerService) (resource.ProviderContainerService, error) {
 	return newContainerService(cfg, p)
 }
+
+func (p *containerServiceProvider) NewContainerRepository(cfg *config.ContainerRepository) (resource.ProviderContainerRepository, error) {
+	return newContainerRepository(cfg, p)
+}
+
+func (p *containerServiceProvider) NewContainer(cfg *config.Container) (resource.ProviderContainer, error) {
+	return newContainer(cfg, p)
+}
